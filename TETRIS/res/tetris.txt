@@ -1,0 +1,209 @@
+Tetris 俄罗斯方块 
+Tetromino 4格方块 游戏
+
+一个软件的开发过程:
+ 1) 业务需求
+ 2 
+ 
+ 
+ 如何绘制背景图
+ 1) 将图片素材复制到包(com.tarena.tetris)中.
+ 2) 将磁盘上的图片文件读取到内存, 为堆中对象
+ 3) 对象的类型: BufferedImage
+ 4) 在Tetris中定义静态引用 BufferedImage background
+ 5) 利用API方法将磁盘图片文件读取为内存图像对象
+     图片对象=ImageIO.read(文件);
+    在"静态代码块"中读取(初始化)图片对象. 
+ 6) 重写paint() 将图片对象绘制到界面.
+ 
+如何绘制墙: 将数据结构中的数据绘制到界面
+  1) 了解wall的数据结构.
+  2) 绘制算法: 将数据结构中的数据映射到界面
+ 
+ Cell[][] wall=new Cell[20][10];
+  
+  wall ---> 
+ 
+  
+  如何绘制4格方块: 根据数据结构绘制4格方块
+  1) 数据在那里? 
+     在Tetris 类中 tetromino 变量, 默认值null
+     在action() 方法中调用 randomOne() 方法
+     创建正在下落方块对象(对象中包含4个格子数据)
+  2) 分析数据, 根据数据设计绘制算法
+     假设: 是T方块对象
+   tetromino = T[0,4  0,3  0,5  1,4]
+                  0    1    2    3 
+   算法: 找到每个正在下落的格子
+   根据每个格子的row,col 换算x,y
+   在x,y位置上贴 每个格子的图片.
+   注意要检查输入数据的有效性:tetromino不能是null 
+ 3) 在Tetris 类中添加 paintTetromino(g) 
+  方法封装绘制下落格子的算法, 在拍paint()中调用
+    
+    
+ 绘制下一个方块
+ 1) 添加新方法 paintNextOne()
+ 2) 更改paint()方法, 调用paintNextOne()方法    
+      
+引用变量不是对象!
+ 引用变量变量的值是对象的首地址
+ 引用变量通过地址引用了对象
+   
+Debug: 打虫子  bug:虫子
+查找错误
+错误: 正确的反面
+如何找到错误? 必须知道正确, 才能找到错误!
+如何查找软件中的错误? 
+软件: 数据结构 + 算法
+算法: 是数据加工过程, 
+软件中的错误: 数据加工过程的错误  
+  输入数据 经过算法计算(数据加工) 得到的结果
+  是错误的, 为了精确定位错误: 
+  1 设计一组合理的输入数据, 和计算结果
+  2 在软件插入输出语句, 输出运行期间的实际
+    输入输出数据. 
+  3 将输出数据与与设计数据进行比较, 找到错误
+  的数据, 根据数据推断, 算法的问题.
+  
+  就是: 根据正确数据, 查找错误数据的过程!
+  
+  
+ states = {S0, S1, S2, S3}
+            0  1   2   3
+ index = 10000
+     
+ index+=1
+ S = states[index%4] = S1
+ T1 = T0.轴  + S
+ 
+ index+=1
+ S = states[index%4] = S2
+ T2 = T1.轴 + S
+  
+ T3 = T2.轴 + S3
+ T0 = T3.轴 + S0
+ 
+游戏状态管理：你听说过消息树吗?
+  游戏的状态： running 游戏中
+              pause   暂停中
+              gameOver 游戏结束
+ 状态的切换：
+ 
+ 状态的事件响应管理
+ 
+ 状态的显示效果      
+ 
+ 如何处理下落级别
+ 最快的下落速度  10 毫秒 
+ 最慢的速度: 500毫秒  是 最快的50倍
+ 
+ 设计主刷新速度是 10毫秒
+ 每50次执行一次下落
+ index++;
+ if(index%speed==0){下落}
+ 
+ 利用speed 调整下落速度
+ speed = 50 - (score/500) 
+               10000/500
+               20
+       = 30
+ speed = speed<1 ? 1 : speed;
+ level = 51-speed;
+ 
+ 在 Tetris 类中定义 
+ int speed 
+ int level 
+ int index
+  
+ 在 定时器 中
+ speed = 50-(score/500);
+ speed = speed<1 ? 1: speed;
+ level = 51-speed;
+ index++;
+ if(index % speed == 0){
+   softDropAction();
+ }
+ 
+ 修改 开始方法: 软件开始时候 index=0
+ 继续事件: index=0
+ 
+ 打包与运行
+ 
+ windows:
+set  CLASSPATH=D:\workspace\JSD1404_Tetris\bin
+java com.tarena.tetris.Tetris
+或者
+java -cp D:\workspace\JSD1404_Tetris\bin   com.tarena.tetris.Tetris
+
+Linux 
+export  CLASSPATH=/home/soft01/workspace/JSD1404_Tetris/bin
+java com.tarena.tetris.Tetris
+或者
+java -cp /home/soft01/workspace/JSD1404_Tetris/bin  com.tarena.tetris.Tetris
+
+Java 可以将程序打包成 .jar 文件发布
+
+jar  命令  (类似于 rar )
+  jar -cf  ../tetris.jar    com
+           生成的文件名  被打包的文件夹 是package
+  -cf create file 创建文件
+
+执行打包(.jar)的程序
+  java  -cp  tetris.jar  com.tarena.tetris.Tetris
+
+windows 实验:
+cd D:\workspace\JSD1404_Tetris\bin   (包含 com package)
+jar -cf  ../tetris.jar    com
+cd   ..        (返回到 D:\workspace\JSD1404_Tetris)
+java  -cp  tetris.jar  com.tarena.tetris.Tetris
+notepad  run.bat   (创建文件, 填写: java -cp tetris.jar com.tarena.tetris.Tetris)
+run.bat  执行
+
+Linux  实验:
+cd /home/soft01/workspace/JSD1404_Tetris/bin   (包含 com package)
+jar -cf  ../tetris.jar    com
+cd   ..        (返回到 /home/soft01/workspace/JSD1404_Tetris)
+java  -cp  tetris.jar  com.tarena.tetris.Tetris
+
+gedit  run.sh  (创建文件, 填写: java -cp tetris.jar com.tarena.tetris.Tetris)
+chmod  +x  run.sh   (增加执行权限)
+./run.sh
+
+
+将 bin 中的class 打包到 tetris.jar 
+添加: run.bat   / run.sh
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+ 
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
